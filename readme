@@ -1,0 +1,112 @@
+    # Gestion des Utilisateurs Atlassian
+
+    Ce projet propose un script Python destiné à désactiver les produits Atlassian (tels que Jira, Confluence et Jira Service Management) pour les utilisateurs qui ne se sont pas connectés depuis un certain temps. Le script identifie les utilisateurs inactifs sur ces produits pendant une période définie et les retire des groupes associés, désactivant ainsi leur accès.
+
+    ## Prérequis
+
+    - Python 3.x
+    - Bibliothèques Python : `requests`, `python-dotenv`, `csv`
+    - Un compte Atlassian avec les permissions nécessaires pour gérer les utilisateurs et les groupes.
+
+    ## Installation
+
+    1. Clonez ce dépôt sur votre machine locale.
+
+    ```bash
+    git clone https://github.com/votre-utilisateur/votre-repo.git
+    cd votre-repo
+    ```
+
+    2. Installez les dépendances Python.
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+    3. Créez un fichier `.env` à la racine du projet et configurez les variables d'environnement nécessaires. Vous pouvez utiliser le fichier `.env` fourni comme modèle.
+
+    ```plaintext
+    ################ ATLASSIAN ################
+    ATLASSIAN_DOMAIN = 'votre-domaine.atlassian.net'
+    ATLASSIAN_ACCOUNT_EMAIL = 'votre-email@domaine.com'
+    ATLASSIAN_ACCOUNT_API_TOKEN = 'votre-api-token'
+    ```
+
+    ## Configuration
+
+    - **ATLASSIAN_DOMAIN** : Le domaine de votre instance Atlassian.
+    - **ATLASSIAN_ACCOUNT_EMAIL** : L'adresse e-mail de votre compte Atlassian.
+    - **ATLASSIAN_ACCOUNT_API_TOKEN** : Le token API généré pour votre compte Atlassian.
+
+
+    ## Modification du script
+
+    Dans le script, vous devez remplacer certaines valeurs par les informations spécifiques à votre instance Atlassian. Voici ce que vous devez modifier :
+
+    1. **Remplacer `<Your DOMAIN NAME>`** :
+   - Recherchez dans le fichier la ligne contenant `"Last seen Jira Service Management - <Your DOMAIN NAME>"` et remplacez `<Your DOMAIN NAME>` par votre véritable nom de domaine, correspondant à votre instance Atlassian.
+   - Vous pouvez trouver le nom de votre domaine dans votre export des utilisateurs et produits (voir section Utilisations).
+   - Exemple : `"Last seen Jira Service Management - My domain name"`.
+
+    2. **Modifier les `group_id`** tout en conservant les `group_name` comme suit :
+
+    ```json
+    [
+        {
+            "product_name": "Jira Service Management",
+            "group_id": "",  // Remplacez par l'ID du groupe réel
+            "group_name": "jira-servicedesk-users"
+        },
+        {
+            "product_name": "Jira",
+            "group_id": "",  // Remplacez par l'ID du groupe réel
+            "group_name": "jira-software-users"
+        },
+        {
+            "product_name": "Confluence",
+            "group_id": "",  // Remplacez par l'ID du groupe réel
+            "group_name": "confluence-users"
+        }
+    ]
+    ```
+
+    ## Utilisation
+
+    1. Assurez-vous que le fichier CSV `export-users.csv` contenant les informations des utilisateurs est présent dans le répertoire du projet.
+
+    ### Comment exporter ?
+    Pour exporter les utilisateurs depuis votre site Atlassian, suivez les instructions de cet article officiel : [Export Users from a Site](https://support.atlassian.com/organization-administration/docs/export-users-from-a-site/).
+
+    #### Points importants :
+    - **Sélectionner "Product Access"** : Cochez cette option pour inclure les informations sur les accès produits des utilisateurs.
+    - **Ne pas cocher "Group Membership"** : Ne cochez pas cette option pour exclure les informations d'appartenance aux groupes des utilisateurs.
+
+
+    2. Exécutez le script principal.
+
+    ```bash
+    python main.py
+    ```
+
+    3. Le script génère deux fichiers dans le répertoire `exports/remove_user_products/` :
+    - `user_products_unused_to_remove_<timestamp>.csv` : Liste des utilisateurs et produits à désactiver.
+    - `user_products_unused_to_remove_<timestamp>.log` : Journal des actions de suppression.
+
+    ## Fonctionnalités
+
+    - **Désactivation des produits de l'utilisateur** : Le script identifie les utilisateurs inactifs et les supprime des groupes associés.
+    - **Journalisation** : Les actions de suppression sont enregistrées dans un fichier log.
+    - **Comptage des occurrences** : Le fichier CSV de sortie inclut une colonne `occurrence_user_id` indiquant le nombre de produits à désactiver pour chaque utilisateur.
+
+    ## Avertissements
+
+    - Assurez-vous d'avoir les permissions nécessaires pour modifier les groupes d'utilisateurs dans Atlassian.
+    - Vérifiez les données du fichier CSV avant d'exécuter le script pour éviter toute suppression accidentelle.
+
+    ## Contribution
+
+    Les contributions sont les bienvenues ! Veuillez soumettre une pull request ou ouvrir une issue pour toute suggestion ou amélioration.
+
+    ## Licence
+
+    Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
